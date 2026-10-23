@@ -3,7 +3,7 @@ name: Scheduled Upstream Sync
 on:
   schedule:
     - cron: '0 0 * * *' # Checks for updates automatically every day at midnight!
-  workflow_dispatch: # Adds a manual sync button you can click anytime.
+  workflow_dispatch: # Manual sync button.
 
 jobs:
   sync_latest_from_upstream:
@@ -27,8 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Sync Releases and Tags
     steps:
-    - name: Fetch and Sync Tags/Releases
-      run: |
-        git clone --bare https://github.com upstream-repo
-        cd upstream-repo
-        git push --tags https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com
+    - name: Mirror Releases via Action
+      uses: repo-sync/github-sync@v2
+      with:
+        source_repo: "https://github.com"
+        source_branch: "main"
+        destination_branch: "main"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        sync_tags: true
